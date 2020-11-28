@@ -3,7 +3,7 @@ name = "shade"
 version = "0.1.0"
 authors = ["Christer Sandberg <chrsan@gmail.com>"]
 edition = "2018"
-license = = "MIT"
+license = "MIT"
 
 [dev-dependencies]
 png = "0.16"
