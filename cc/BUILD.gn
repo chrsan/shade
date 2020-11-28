@@ -1,0 +1,13 @@
+component("shade_capi") {
+  deps = [
+    "//:skia",
+    "//modules/skottie",
+    "//modules/svg",
+  ]
+
+  sources = [
+    "core.cc",
+    "skottie.cc",
+    "svg.cc",
+  ]
+ }

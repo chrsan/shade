@@ -1,0 +1,13 @@
+[package]
+name = "shade"
+version = "0.1.0"
+authors = ["Christer Sandberg <chrsan@gmail.com>"]
+edition = "2018"
+license = = "MIT"
+
+[dev-dependencies]
+png = "0.16"
+structopt = "0.3"
+
+[build-dependencies]
+cc = "1.0"

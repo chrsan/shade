@@ -1,0 +1,6 @@
+/.cache
+/.clangd
+/out
+/skia
+/target
+Cargo.lock
