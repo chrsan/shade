@@ -21,11 +21,13 @@ struct Opt {
     /// Output file.
     #[structopt(short = "o", long, parse(from_os_str))]
     output: std::path::PathBuf,
+    /// Width
     #[structopt(default_value = "1280", short = "w", long)]
     width: u32,
     /// Height
     #[structopt(default_value = "720", short = "h", long)]
     height: u32,
+    /// Background color.
     #[structopt(default_value = "0", short = "c", long, parse(try_from_str = parse_color_value))]
     color: shade::core::Color,
 }
