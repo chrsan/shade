@@ -465,6 +465,30 @@ unsafe impl cxx::ExternType for SkRect {
 }
 
 #[repr(C)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub struct SkSize {
+    pub width: f32,
+    pub height: f32,
+}
+
+impl SkSize {
+    #[inline]
+    pub fn new(width: f32, height: f32) -> Self {
+        Self { width, height }
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.width <= 0.0 || self.height <= 0.0
+    }
+}
+
+unsafe impl cxx::ExternType for SkSize {
+    type Id = cxx::type_id!("SkSize");
+    type Kind = cxx::kind::Trivial;
+}
+
+#[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkMatrix {
     pub mat: [f32; 9],

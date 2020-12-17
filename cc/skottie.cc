@@ -1,5 +1,4 @@
 #include "shade/cc/skottie.h"
-#include "include/core/SkSize.h"
 #include "modules/skottie/include/Skottie.h"
 #include "shade/src/skottie.rs.h"
 
@@ -14,10 +13,8 @@ double Animation::fps() const {
   return animation_->fps();
 }
 
-void Animation::size(float& width, float& height) const {
-  SkSize size = animation_->size();
-  width = size.fWidth;
-  height = size.fHeight;
+SkSize Animation::size() const {
+  return animation_->size();
 }
 
 void Animation::render(SkCanvas& canvas) const {

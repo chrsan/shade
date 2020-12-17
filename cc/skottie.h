@@ -3,6 +3,7 @@
 #include <memory>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 #include "modules/skottie/include/Skottie.h"
 #include "rust/cxx.h"
 
@@ -12,7 +13,7 @@ class Animation {
 
   double duration() const;
   double fps() const;
-  void size(float& width, float& height) const;
+  SkSize size() const;
 
   void render(SkCanvas& canvas) const;
 

@@ -7,9 +7,11 @@ mod ffi {
 
         fn new_svg_dom(data: &[u8]) -> UniquePtr<SvgDom>;
 
-        fn get_container_size(self: &SvgDom, width: &mut f32, height: &mut f32);
+        type SkSize = crate::core::SkSize;
 
-        fn set_container_size(self: Pin<&mut SvgDom>, width: f32, height: f32);
+        fn get_container_size(self: &SvgDom) -> SkSize;
+
+        fn set_container_size(self: Pin<&mut SvgDom>, size: &SkSize);
 
         type SkCanvas = crate::core::SkCanvas;
 

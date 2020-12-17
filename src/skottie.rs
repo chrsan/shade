@@ -11,7 +11,9 @@ mod ffi {
 
         fn fps(self: &Animation) -> f64;
 
-        fn size(self: &Animation, width: &mut f32, height: &mut f32);
+        type SkSize = crate::core::SkSize;
+
+        fn size(self: &Animation) -> SkSize;
 
         type SkCanvas = crate::core::SkCanvas;
 
@@ -29,13 +31,5 @@ impl Animation {
     #[inline]
     pub fn new<T: AsRef<[u8]>>(data: T) -> cxx::UniquePtr<Self> {
         new_animation(data.as_ref())
-    }
-
-    #[inline]
-    pub fn dimension(&self) -> (f32, f32) {
-        let mut width = 0f32;
-        let mut height = 0f32;
-        self.size(&mut width, &mut height);
-        (width, height)
     }
 }

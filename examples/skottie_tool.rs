@@ -68,8 +68,8 @@ fn main() {
 
     std::fs::create_dir_all(&opt.output).unwrap();
 
-    let (w, h) = animation.dimension();
-    let src_rect = shade::core::SkRect::from_wh(w, h);
+    let size = animation.size();
+    let src_rect = shade::core::SkRect::from_wh(size.width, size.height);
     let dst_rect = shade::core::SkRect::from_wh(opt.width as _, opt.height as _);
     let mut scale_matrix = shade::core::SkMatrix::default();
     scale_matrix.set_rect_to_rect(

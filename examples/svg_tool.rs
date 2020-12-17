@@ -43,7 +43,7 @@ fn main() {
     let mut dom = shade::svg::SvgDom::new(&svg);
     assert!(!dom.is_null());
     dom.pin_mut()
-        .set_container_size(opt.width as _, opt.height as _);
+        .set_container_size(&shade::core::SkSize::new(opt.width as _, opt.height as _));
 
     let ct = shade::core::SkColorType::n32();
     let mut pixels =
