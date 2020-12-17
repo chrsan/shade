@@ -50,18 +50,14 @@ fi
 # Let's piggy back on the Skia build for our C++ sources.
 git reset --hard > /dev/null
 
-pushd modules > /dev/null
-
-rm shade_capi 2>&1 > /dev/null || true
-ln -s "${BASE_DIR}/../cc" shade_capi
-
-echo 'creating gn shade_capi group'
-echo 'group("shade_capi") {' >> ../BUILD.gn
-echo '  deps = [' >> ../BUILD.gn
-echo '    "modules/shade_capi",' >> ../BUILD.gn
-echo '  ]' >> ../BUILD.gn
-echo '}' >> ../BUILD.gn
-popd >> /dev/null
+echo 'creating gn shade group'
+echo 'group("shade") {' >> ./BUILD.gn
+echo '  deps = [' >> ./BUILD.gn
+echo '    "//:skia",' >> ./BUILD.gn
+echo '    "//modules/skottie",' >> ./BUILD.gn
+echo '    "//modules/svg",' >> ./BUILD.gn
+echo '  ]' >> ./BUILD.gn
+echo '}' >> ./BUILD.gn
 
 BUILD_DIR="${BASE_DIR}/../out/${OS}/${ARCH}"
 if [[ ! -d "$BUILD_DIR" ]]; then
@@ -152,9 +148,9 @@ if [[ ! -d "$BUILD_DIR" ]]; then
       skia_enable_svg = true"
 fi
 
-ninja -C "$BUILD_DIR" libskia.a libskshaper.a libskottie.a libsksg.a libsvg.a shade_capi
+ninja -C "$BUILD_DIR" libskia.a libskshaper.a libskottie.a libsksg.a libsvg.a shade
 
 LIB_DIR="${BASE_DIR}/../lib/${OS}/${ARCH}"
 mkdir -p "$LIB_DIR" > /dev/null
 pushd "$BUILD_DIR" > /dev/null
-cp libskia.a libskshaper.a libskottie.a libsksg.a libsvg.a libshade_capi.a "$LIB_DIR"
+cp libskia.a libskshaper.a libskottie.a libsksg.a libsvg.a "$LIB_DIR"

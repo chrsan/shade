@@ -1,6 +1,322 @@
-use crate::core_bindings::*;
+#[cxx::bridge]
+mod ffi {
+    // See https://github.com/dtolnay/cxx/issues/379 for using cxx_name on enum variants.
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+    #[repr(i32)]
+    enum MatrixScaleToFit {
+        kFill_ScaleToFit,
+        kStart_ScaleToFit,
+        kCenter_ScaleToFit,
+        kEnd_ScaleToFit,
+    }
+
+    #[repr(i32)]
+    enum BlendMode {
+        kClear = 0,
+        kSrc = 1,
+        kDst = 2,
+        kSrcOver = 3,
+        kDstOver = 4,
+        kSrcIn = 5,
+        kDstIn = 6,
+        kSrcOut = 7,
+        kDstOut = 8,
+        kSrcATop = 9,
+        kDstATop = 10,
+        kXor = 11,
+        kPlus = 12,
+        kModulate = 13,
+        kScreen = 14,
+        kLastCoeffMode = 14,
+        kOverlay = 15,
+        kDarken = 16,
+        kLighten = 17,
+        kColorDodge = 18,
+        kColorBurn = 19,
+        kHardLight = 20,
+        kSoftLight = 21,
+        kDifference = 22,
+        kExclusion = 23,
+        kMultiply = 24,
+        kLastSeparableMode = 24,
+        kHue = 25,
+        kSaturation = 26,
+        kColor = 27,
+        kLuminosity = 28,
+        kLastMode = 28,
+    }
+
+    #[repr(u8)]
+    enum PaintStyle {
+        kFill_Style,
+        kStroke_Style,
+        kStrokeAndFill_Style,
+    }
+
+    #[repr(i32)]
+    enum PaintStrokeCap {
+        kButt_Cap,
+        kRound_Cap,
+        kSquare_Cap,
+    }
+
+    #[repr(u8)]
+    enum PaintStrokeJoin {
+        kMiter_Join,
+        kRound_Join,
+        kBevel_Join,
+    }
+
+    #[repr(i32)]
+    enum PathFillType {
+        kWinding,
+        kEvenOdd,
+        kInverseWinding,
+        kInverseEvenOdd,
+    }
+
+    #[repr(i32)]
+    enum PathDirection {
+        kCW,
+        kCCW,
+    }
+
+    unsafe extern "C++" {
+        include!("shade/cc/core.h");
+
+        fn n32_color_type_is_bgra() -> bool;
+
+        type Point = super::Point;
+        type Rect = super::Rect;
+
+        type Matrix = super::Matrix;
+        type MatrixScaleToFit;
+
+        fn new_identity_matrix() -> Matrix;
+
+        #[cxx_name = "getScaleX"]
+        fn get_scale_x(self: &Matrix) -> f32;
+
+        #[cxx_name = "getScaleY"]
+        fn get_scale_y(self: &Matrix) -> f32;
+
+        #[cxx_name = "getSkewX"]
+        fn get_skew_x(self: &Matrix) -> f32;
+
+        #[cxx_name = "getSkewY"]
+        fn get_skew_y(self: &Matrix) -> f32;
+
+        #[cxx_name = "getTranslateX"]
+        fn get_translate_x(self: &Matrix) -> f32;
+
+        #[cxx_name = "getTranslateY"]
+        fn get_translate_y(self: &Matrix) -> f32;
+
+        #[cxx_name = "setTranslate"]
+        fn set_translate(self: &mut Matrix, dx: f32, dy: f32) -> &mut Matrix;
+
+        #[cxx_name = "setScale"]
+        fn set_scale(self: &mut Matrix, sx: f32, sy: f32) -> &mut Matrix;
+
+        #[cxx_name = "setRotate"]
+        fn set_rotate(self: &mut Matrix, degrees: f32) -> &mut Matrix;
+
+        #[cxx_name = "setSkew"]
+        fn set_skew(self: &mut Matrix, sx: f32, sy: f32) -> &mut Matrix;
+
+        #[cxx_name = "setSinCos"]
+        fn set_sin_cos(self: &mut Matrix, sin: f32, cos: f32) -> &mut Matrix;
+
+        #[cxx_name = "setRectToRect"]
+        fn set_rect_to_rect(
+            self: &mut Matrix,
+            src: &Rect,
+            dst: &Rect,
+            stf: MatrixScaleToFit,
+        ) -> bool;
+
+        fn invert_matrix(m: &Matrix, ok: &mut bool) -> Matrix;
+
+        type Canvas;
+
+        fn new_rgba_canvas(
+            width: u32,
+            height: u32,
+            pixels: &mut Vec<u8>,
+            row_bytes: usize,
+            premultiplied: bool,
+        ) -> UniquePtr<Canvas>;
+
+        fn clear(self: Pin<&mut Canvas>, color: u32);
+
+        fn flush(self: Pin<&mut Canvas>);
+
+        fn save(self: Pin<&mut Canvas>) -> i32;
+
+        fn restore(self: Pin<&mut Canvas>);
+
+        fn scale(self: Pin<&mut Canvas>, sx: f32, sy: f32);
+
+        fn translate(self: Pin<&mut Canvas>, dx: f32, dy: f32);
+
+        fn rotate(self: Pin<&mut Canvas>, degrees: f32);
+
+        fn skew(self: Pin<&mut Canvas>, sx: f32, sy: f32);
+
+        fn concat(self: Pin<&mut Canvas>, matrix: &Matrix);
+
+        #[cxx_name = "resetMatrix"]
+        fn reset_matrix(self: Pin<&mut Canvas>);
+
+        #[cxx_name = "drawRect"]
+        fn draw_rect(self: Pin<&mut Canvas>, rect: &Rect, paint: &Paint);
+
+        #[cxx_name = "drawPath"]
+        fn draw_path(self: Pin<&mut Canvas>, path: &Path, paint: &Paint);
+
+        type BlendMode;
+
+        type Paint;
+        type PaintStyle;
+        type PaintStrokeCap;
+        type PaintStrokeJoin;
+
+        fn new_paint() -> UniquePtr<Paint>;
+
+        fn reset(self: Pin<&mut Paint>);
+
+        #[cxx_name = "isAntiAlias"]
+        fn is_anti_alias(self: &Paint) -> bool;
+
+        #[cxx_name = "setAntiAlias"]
+        fn set_anti_alias(self: Pin<&mut Paint>, aa: bool);
+
+        #[cxx_name = "getStyle"]
+        fn get_style(self: &Paint) -> PaintStyle;
+
+        #[cxx_name = "setStyle"]
+        fn set_style(self: Pin<&mut Paint>, style: PaintStyle);
+
+        #[cxx_name = "setStroke"]
+        fn set_stroke(self: Pin<&mut Paint>, b: bool);
+
+        #[cxx_name = "getColor"]
+        fn get_color(self: &Paint) -> u32;
+
+        #[cxx_name = "setColor"]
+        fn set_color(self: Pin<&mut Paint>, color: u32);
+
+        #[cxx_name = "getAlpha"]
+        fn get_alpha(self: &Paint) -> u8;
+
+        #[cxx_name = "setAlpha"]
+        fn set_alpha(self: Pin<&mut Paint>, alpha: u32);
+
+        #[cxx_name = "setARGB"]
+        fn set_argb(self: Pin<&mut Paint>, a: u32, r: u32, g: u32, b: u32);
+
+        #[cxx_name = "getStrokeWidth"]
+        fn get_stroke_width(self: &Paint) -> f32;
+
+        #[cxx_name = "setStrokeWidth"]
+        fn set_stroke_width(self: Pin<&mut Paint>, width: f32);
+
+        #[cxx_name = "getStrokeMiter"]
+        fn get_stroke_miter(self: &Paint) -> f32;
+
+        #[cxx_name = "setStrokeMiter"]
+        fn set_stroke_miter(self: Pin<&mut Paint>, miter: f32);
+
+        #[cxx_name = "getStrokeCap"]
+        fn get_stroke_cap(self: &Paint) -> PaintStrokeCap;
+
+        #[cxx_name = "setStrokeCap"]
+        fn set_stroke_cap(self: Pin<&mut Paint>, cap: PaintStrokeCap);
+
+        #[cxx_name = "getStrokeJoin"]
+        fn get_stroke_join(self: &Paint) -> PaintStrokeJoin;
+
+        #[cxx_name = "setStrokeJoin"]
+        fn set_stroke_join(self: Pin<&mut Paint>, join: PaintStrokeJoin);
+
+        #[cxx_name = "getBlendMode"]
+        fn get_blend_mode(self: &Paint) -> BlendMode;
+
+        #[cxx_name = "isSrcOver"]
+        fn is_src_over(self: &Paint) -> bool;
+
+        #[cxx_name = "setBlendMode"]
+        fn set_blend_mode(self: Pin<&mut Paint>, mode: BlendMode);
+
+        type Path;
+        type PathFillType;
+        type PathDirection;
+
+        fn new_path() -> UniquePtr<Path>;
+
+        #[cxx_name = "getFillType"]
+        fn get_fill_type(self: &Path) -> PathFillType;
+
+        #[cxx_name = "setFillType"]
+        fn set_fill_type(self: Pin<&mut Path>, ft: PathFillType);
+
+        fn reset(self: Pin<&mut Path>) -> Pin<&mut Path>;
+
+        fn rewind(self: Pin<&mut Path>) -> Pin<&mut Path>;
+
+        #[cxx_name = "isEmpty"]
+        fn is_empty(self: &Path) -> bool;
+
+        #[cxx_name = "moveTo"]
+        fn move_to(self: Pin<&mut Path>, x: f32, y: f32) -> Pin<&mut Path>;
+
+        #[cxx_name = "lineTo"]
+        fn line_to(self: Pin<&mut Path>, x: f32, y: f32) -> Pin<&mut Path>;
+
+        #[cxx_name = "quadTo"]
+        fn quad_to(self: Pin<&mut Path>, x1: f32, y1: f32, x2: f32, y2: f32) -> Pin<&mut Path>;
+
+        #[cxx_name = "conicTo"]
+        fn conic_to(
+            self: Pin<&mut Path>,
+            x1: f32,
+            y1: f32,
+            x2: f32,
+            y2: f32,
+            weight: f32,
+        ) -> Pin<&mut Path>;
+
+        #[cxx_name = "cubicTo"]
+        fn cubic_to(
+            self: Pin<&mut Path>,
+            x1: f32,
+            y1: f32,
+            x2: f32,
+            y2: f32,
+            x3: f32,
+            y3: f32,
+        ) -> Pin<&mut Path>;
+
+        fn close(self: Pin<&mut Path>) -> Pin<&mut Path>;
+
+        #[cxx_name = "addRect"]
+        fn add_rect<'a, 'b>(
+            self: Pin<&'a mut Path>,
+            rect: &'b Rect,
+            dir: PathDirection,
+        ) -> Pin<&'a mut Path>;
+
+        #[cxx_name = "computeTightBounds"]
+        fn compute_tight_bounds(self: &Path) -> Rect;
+
+        fn dump_path(p: &Path);
+    }
+}
+
+#[allow(non_camel_case_types)]
+pub use self::ffi::*;
+
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Color(pub u32);
 
 impl Color {
@@ -36,7 +352,8 @@ impl From<u32> for Color {
     }
 }
 
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[repr(C)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
@@ -49,808 +366,128 @@ impl Point {
     }
 }
 
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+unsafe impl cxx::ExternType for Point {
+    type Id = cxx::type_id!("Point");
+    type Kind = cxx::kind::Trivial;
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Rect {
-    pub min: Point,
-    pub max: Point,
+    pub left: f32,
+    pub top: f32,
+    pub right: f32,
+    pub bottom: f32,
 }
 
 impl Rect {
     #[inline]
     pub fn new(left: f32, top: f32, right: f32, bottom: f32) -> Self {
         Self {
-            min: Point::new(left, top),
-            max: Point::new(right, bottom),
+            left,
+            top,
+            right,
+            bottom,
+        }
+    }
+
+    #[inline]
+    pub fn from_wh(width: f32, height: f32) -> Self {
+        Self {
+            left: 0.0,
+            top: 0.0,
+            right: width,
+            bottom: height,
+        }
+    }
+
+    #[inline]
+    pub fn from_xywh(x: f32, y: f32, w: f32, h: f32) -> Self {
+        Self {
+            left: x,
+            top: y,
+            right: x + w,
+            bottom: y + h,
         }
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
-        !(self.min.x < self.max.x && self.min.y < self.max.y)
-    }
-
-    #[inline]
-    pub fn width(&self) -> f32 {
-        self.max.x - self.min.x
-    }
-
-    #[inline]
-    pub fn height(&self) -> f32 {
-        self.max.y - self.min.y
+        !(self.left < self.right && self.top < self.bottom)
     }
 }
 
-pub type MatrixArray = [f32; 9];
+unsafe impl cxx::ExternType for Rect {
+    type Id = cxx::type_id!("Rect");
+    type Kind = cxx::kind::Trivial;
+}
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Matrix(pub MatrixArray);
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum ScaleToFit {
-    Fill,
-    Start,
-    Center,
-    End,
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Matrix {
+    pub mat: [f32; 9],
+    type_mask: i32,
 }
 
 impl Matrix {
-    pub const SCALE_X_INDEX: usize = 0;
-    pub const SKEW_X_INDEX: usize = 1;
-    pub const TRANS_X_INDEX: usize = 2;
-    pub const SKEW_Y_INDEX: usize = 3;
-    pub const SCALE_Y_INDEX: usize = 4;
-    pub const TRANS_Y_INDEX: usize = 5;
-    pub const PERSP_X_INDEX: usize = 6;
-    pub const PERSP_Y_INDEX: usize = 7;
-    pub const PERSP_BIAS_INDEX: usize = 8;
-
-    #[inline]
-    pub fn new() -> Self {
-        Self::new_with_array(Self::identity_matrix_array())
-    }
-
-    pub fn rect_to_rect(src: &Rect, dst: &Rect, align: ScaleToFit) -> Self {
-        let mut matrix = Self::new();
-        if src.is_empty() {
-            return matrix;
-        }
-        if dst.is_empty() {
-            matrix.set_scale_x(0.0);
-            matrix.set_scale_y(0.0);
-            return matrix;
-        }
-        let mut sx = dst.width() / src.width();
-        let mut sy = dst.height() / src.height();
-        let mut x_larger = false;
-        if align != ScaleToFit::Fill {
-            if sx > sy {
-                x_larger = true;
-                sx = sy;
-            } else {
-                sy = sx;
-            }
-        }
-        let mut tx = dst.min.x - src.min.x * sx;
-        let mut ty = dst.min.y - src.min.x * sy;
-        if align == ScaleToFit::Center || align == ScaleToFit::End {
-            let mut diff = if x_larger {
-                dst.width() - src.width() * sy
-            } else {
-                dst.height() - src.height() * sy
-            };
-            if align == ScaleToFit::Center {
-                diff *= 0.5;
-            }
-            if x_larger {
-                tx += diff;
-            } else {
-                ty += diff;
-            }
-        }
-        matrix.set_scale_x(sx);
-        matrix.set_scale_y(sy);
-        matrix.set_translate_x(tx);
-        matrix.set_translate_y(ty);
-        matrix
-    }
-
-    #[inline]
-    pub fn scale_x(&self) -> f32 {
-        self.0[Self::SCALE_X_INDEX]
-    }
-
-    #[inline]
-    pub fn set_scale_x(&mut self, value: f32) {
-        self.0[Self::SCALE_X_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn scale_y(&self) -> f32 {
-        self.0[Self::SCALE_Y_INDEX]
-    }
-
-    #[inline]
-    pub fn set_scale_y(&mut self, value: f32) {
-        self.0[Self::SCALE_Y_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn skew_x(&self) -> f32 {
-        self.0[Self::SKEW_X_INDEX]
-    }
-
-    #[inline]
-    pub fn set_skew_x(&mut self, value: f32) {
-        self.0[Self::SKEW_X_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn skew_y(&self) -> f32 {
-        self.0[Self::SKEW_Y_INDEX]
-    }
-
-    #[inline]
-    pub fn set_skew_y(&mut self, value: f32) {
-        self.0[Self::SKEW_Y_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn translate_x(&self) -> f32 {
-        self.0[Self::TRANS_X_INDEX]
-    }
-
-    #[inline]
-    pub fn set_translate_x(&mut self, value: f32) {
-        self.0[Self::TRANS_X_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn translate_y(&self) -> f32 {
-        self.0[Self::TRANS_Y_INDEX]
-    }
-
-    #[inline]
-    pub fn set_translate_y(&mut self, value: f32) {
-        self.0[Self::TRANS_Y_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn persp_x(&self) -> f32 {
-        self.0[Self::PERSP_X_INDEX]
-    }
-
-    #[inline]
-    pub fn set_persp_x(&mut self, value: f32) {
-        self.0[Self::PERSP_X_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn persp_y(&self) -> f32 {
-        self.0[Self::PERSP_Y_INDEX]
-    }
-
-    #[inline]
-    pub fn set_persp_y(&mut self, value: f32) {
-        self.0[Self::PERSP_Y_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn persp_bias(&self) -> f32 {
-        self.0[Self::PERSP_BIAS_INDEX]
-    }
-
-    #[inline]
-    pub fn set_persp_bias(&mut self, value: f32) {
-        self.0[Self::PERSP_BIAS_INDEX] = value;
-    }
-
-    #[inline]
-    pub fn reset(&mut self) {
-        (*self).0 = Self::identity_matrix_array();
-    }
-
-    #[inline]
     pub fn invert(&self) -> Option<Self> {
-        let mut mat = Self::identity_matrix_array();
-        if unsafe { shade_matrix_create_inverse(self.0.as_ptr(), mat.as_mut_ptr()) } {
-            Some(Self::new_with_array(mat))
+        let mut ok = false;
+        let inv = invert_matrix(self, &mut ok);
+        if ok {
+            Some(inv)
         } else {
             None
         }
-    }
-
-    #[inline]
-    pub(crate) const fn identity_matrix_array() -> MatrixArray {
-        [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
-    }
-
-    #[inline]
-    pub(crate) fn new_with_array(mat: MatrixArray) -> Self {
-        Self(mat)
     }
 }
 
 impl Default for Matrix {
     fn default() -> Self {
-        Self::new()
+        new_identity_matrix()
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum AlphaType {
-    Premultiplied,
-    Unpremultiplied,
+unsafe impl cxx::ExternType for Matrix {
+    type Id = cxx::type_id!("Matrix");
+    type Kind = cxx::kind::Trivial;
 }
-
-#[derive(Debug)]
-pub struct Surface<'a> {
-    pub(crate) surface: *mut ShadeSurface,
-    pub(crate) canvas: Canvas,
-    width: u32,
-    height: u32,
-    pixels: &'a [u8],
-    row_bytes: Option<usize>,
-    alpha_type: AlphaType,
-}
-
-impl<'a> Surface<'a> {
-    #[inline]
-    pub fn is_bgra() -> bool {
-        unsafe { shade_is_surface_bgra() }
-    }
-
-    #[inline]
-    pub const fn row_bytes(width: u32) -> usize {
-        width as usize * 4
-    }
-
-    #[inline]
-    pub fn new(
-        width: u32,
-        height: u32,
-        pixels: &'a mut [u8],
-        row_bytes: Option<usize>,
-        alpha_type: AlphaType,
-    ) -> Option<Self> {
-        let stride = if let Some(ref stride) = row_bytes {
-            stride as *const usize
-        } else {
-            std::ptr::null()
-        };
-        let surface = unsafe {
-            match alpha_type {
-                AlphaType::Premultiplied => shade_surface_create_rgba_premultiplied(
-                    width,
-                    height,
-                    pixels.as_mut_ptr(),
-                    stride,
-                ),
-                AlphaType::Unpremultiplied => {
-                    shade_surface_create_rgba(width, height, pixels.as_mut_ptr(), stride)
-                }
-            }
-        };
-        if surface.is_null() {
-            None
-        } else {
-            let canvas = Canvas(unsafe { shade_surface_get_canvas(surface) });
-            assert!(!canvas.0.is_null());
-            Some(Self {
-                surface,
-                canvas,
-                width,
-                height,
-                pixels,
-                row_bytes,
-                alpha_type,
-            })
-        }
-    }
-
-    #[inline]
-    pub fn width(&self) -> u32 {
-        self.width
-    }
-
-    #[inline]
-    pub fn height(&self) -> u32 {
-        self.height
-    }
-
-    #[inline]
-    pub fn pixels(&self) -> &[u8] {
-        self.pixels
-    }
-
-    #[inline]
-    pub fn alpha_type(&self) -> AlphaType {
-        self.alpha_type
-    }
-}
-
-impl<'a> Drop for Surface<'a> {
-    fn drop(&mut self) {
-        unsafe {
-            shade_surface_destroy(self.surface);
-        }
-    }
-}
-
-impl<'a> std::ops::Deref for Surface<'a> {
-    type Target = Canvas;
-
-    fn deref(&self) -> &Self::Target {
-        &self.canvas
-    }
-}
-
-impl<'a> std::ops::DerefMut for Surface<'a> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.canvas
-    }
-}
-
-#[derive(Debug)]
-pub struct Canvas(pub(crate) *mut ShadeCanvas);
 
 impl Canvas {
     #[inline]
-    pub fn clear(&mut self, color: Color) {
-        unsafe {
-            shade_canvas_clear(self.0, color.0);
-        }
+    pub fn new_rgba(
+        width: u32,
+        height: u32,
+        pixels: &mut Vec<u8>,
+        row_bytes: usize,
+    ) -> cxx::UniquePtr<Self> {
+        new_rgba_canvas(width, height, pixels, row_bytes, false)
     }
 
     #[inline]
-    pub fn flush(&mut self) {
-        unsafe {
-            shade_canvas_flush(self.0);
-        }
-    }
-
-    #[inline]
-    pub fn save(&mut self) {
-        unsafe {
-            shade_canvas_save(self.0);
-        }
-    }
-
-    #[inline]
-    pub fn restore(&mut self) {
-        unsafe {
-            shade_canvas_restore(self.0);
-        }
-    }
-
-    #[inline]
-    pub fn scale(&mut self, sx: f32, sy: f32) {
-        unsafe {
-            shade_canvas_scale(self.0, sx, sy);
-        }
-    }
-
-    #[inline]
-    pub fn translate(&mut self, dx: f32, dy: f32) {
-        unsafe {
-            shade_canvas_translate(self.0, dx, dy);
-        }
-    }
-
-    #[inline]
-    pub fn set_matrix(&mut self, matrix: &Matrix) {
-        unsafe {
-            shade_canvas_set_matrix(self.0, matrix.0.as_ptr());
-        }
-    }
-
-    #[inline]
-    pub fn concat(&mut self, matrix: &Matrix) {
-        unsafe {
-            shade_canvas_concat(self.0, matrix.0.as_ptr());
-        }
-    }
-
-    #[inline]
-    pub fn total_matrix(&self) -> Matrix {
-        let mut matrix = Matrix::new();
-        unsafe {
-            shade_canvas_get_total_matrix(self.0, matrix.0.as_mut_ptr());
-        }
-        matrix
-    }
-
-    #[inline]
-    pub fn draw_path(&mut self, path: &Path, paint: &Paint) {
-        unsafe {
-            shade_canvas_draw_path(self.0, path.0, paint.0);
-        }
-    }
-
-    #[inline]
-    pub fn draw_rect(&mut self, rect: &Rect, paint: &Paint) {
-        unsafe {
-            shade_canvas_draw_rect(
-                self.0,
-                rect.min.x,
-                rect.min.y,
-                rect.width(),
-                rect.height(),
-                paint.0,
-            );
-        }
+    pub fn new_rgba_premultiplied(
+        width: u32,
+        height: u32,
+        pixels: &mut Vec<u8>,
+        row_bytes: usize,
+    ) -> cxx::UniquePtr<Self> {
+        new_rgba_canvas(width, height, pixels, row_bytes, true)
     }
 }
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum PaintStyle {
-    Fill,
-    Stroke,
-    StrokeAndFill,
-}
-
-impl From<ShadePaintStyle> for PaintStyle {
-    fn from(s: ShadePaintStyle) -> Self {
-        match s {
-            SHADE_PAINT_STYLE_FILL => PaintStyle::Fill,
-            SHADE_PAINT_STYLE_STROKE => PaintStyle::Stroke,
-            SHADE_PAINT_STYLE_STROKE_AND_FILL => PaintStyle::StrokeAndFill,
-            _ => {
-                unreachable!();
-            }
-        }
-    }
-}
-
-impl From<PaintStyle> for ShadePaintStyle {
-    fn from(s: PaintStyle) -> Self {
-        match s {
-            PaintStyle::Fill => SHADE_PAINT_STYLE_FILL,
-            PaintStyle::Stroke => SHADE_PAINT_STYLE_STROKE,
-            PaintStyle::StrokeAndFill => SHADE_PAINT_STYLE_STROKE_AND_FILL,
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum StrokeCap {
-    Butt,
-    Round,
-    Square,
-}
-
-impl From<ShadeStrokeCap> for StrokeCap {
-    fn from(c: ShadeStrokeCap) -> Self {
-        match c {
-            SHADE_STROKE_CAP_BUTT => StrokeCap::Butt,
-            SHADE_STROKE_CAP_ROUND => StrokeCap::Round,
-            SHADE_STROKE_CAP_SQUARE => StrokeCap::Square,
-            _ => {
-                unreachable!();
-            }
-        }
-    }
-}
-
-impl From<StrokeCap> for ShadeStrokeCap {
-    fn from(c: StrokeCap) -> Self {
-        match c {
-            StrokeCap::Butt => SHADE_STROKE_CAP_BUTT,
-            StrokeCap::Round => SHADE_STROKE_CAP_ROUND,
-            StrokeCap::Square => SHADE_STROKE_CAP_SQUARE,
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum StrokeJoin {
-    Miter,
-    Round,
-    Bevel,
-}
-
-impl From<ShadeStrokeJoin> for StrokeJoin {
-    fn from(j: ShadeStrokeJoin) -> Self {
-        match j {
-            SHADE_STROKE_JOIN_MITER => StrokeJoin::Miter,
-            SHADE_STROKE_JOIN_ROUND => StrokeJoin::Round,
-            SHADE_STROKE_JOIN_BEVEL => StrokeJoin::Bevel,
-            _ => {
-                unreachable!();
-            }
-        }
-    }
-}
-
-impl From<StrokeJoin> for ShadeStrokeJoin {
-    fn from(j: StrokeJoin) -> Self {
-        match j {
-            StrokeJoin::Miter => SHADE_STROKE_JOIN_MITER,
-            StrokeJoin::Round => SHADE_STROKE_JOIN_ROUND,
-            StrokeJoin::Bevel => SHADE_STROKE_JOIN_BEVEL,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Paint(pub(crate) *mut ShadePaint);
 
 impl Paint {
     #[inline]
-    pub fn new() -> Option<Self> {
-        let paint = unsafe { shade_paint_create() };
-        if paint.is_null() {
-            None
-        } else {
-            Some(Self(paint))
-        }
-    }
-
-    #[inline]
-    pub fn style(&self) -> PaintStyle {
-        unsafe { shade_paint_get_style(self.0) }.into()
-    }
-
-    #[inline]
-    pub fn set_style(&mut self, style: PaintStyle) {
-        unsafe {
-            shade_paint_set_style(self.0, style.into());
-        }
-    }
-
-    #[inline]
-    pub fn color(&self) -> Color {
-        Color(unsafe { shade_paint_get_color(self.0) })
-    }
-
-    #[inline]
-    pub fn set_color(&mut self, color: Color) {
-        unsafe {
-            shade_paint_set_color(self.0, color.0);
-        }
-    }
-
-    #[inline]
-    pub fn is_anti_alias(&self) -> bool {
-        unsafe { shade_paint_is_anti_alias(self.0) }
-    }
-
-    #[inline]
-    pub fn set_anti_alias(&mut self, value: bool) {
-        unsafe {
-            shade_paint_set_anti_alias(self.0, value);
-        }
-    }
-
-    #[inline]
-    pub fn stroke_width(&self) -> f32 {
-        unsafe { shade_paint_get_stroke_width(self.0) }
-    }
-
-    #[inline]
-    pub fn set_stroke_width(&mut self, width: f32) {
-        unsafe {
-            shade_paint_set_stroke_width(self.0, width);
-        }
-    }
-
-    #[inline]
-    pub fn stroke_cap(&self) -> StrokeCap {
-        unsafe { shade_paint_get_stroke_cap(self.0) }.into()
-    }
-
-    #[inline]
-    pub fn set_stroke_cap(&mut self, cap: StrokeCap) {
-        unsafe {
-            shade_paint_set_stroke_cap(self.0, cap.into());
-        }
-    }
-
-    #[inline]
-    pub fn stroke_join(&self) -> StrokeJoin {
-        unsafe { shade_paint_get_stroke_join(self.0) }.into()
-    }
-
-    #[inline]
-    pub fn set_stroke_join(&mut self, join: StrokeJoin) {
-        unsafe {
-            shade_paint_set_stroke_join(self.0, join.into());
-        }
-    }
-
-    #[inline]
-    pub fn stroke_miter(&self) -> f32 {
-        unsafe { shade_paint_get_stroke_miter(self.0) }
-    }
-
-    #[inline]
-    pub fn set_stroke_miter(&mut self, miter: f32) {
-        unsafe {
-            shade_paint_set_stroke_miter(self.0, miter);
-        }
-    }
-
-    #[inline]
-    pub fn reset(&mut self) {
-        unsafe {
-            shade_paint_reset(self.0);
-        }
+    pub fn new() -> cxx::UniquePtr<Self> {
+        new_paint()
     }
 }
-
-impl Drop for Paint {
-    fn drop(&mut self) {
-        unsafe {
-            shade_paint_destroy(self.0);
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum PathFillType {
-    Winding,
-    EvenOdd,
-    InverseWinding,
-    InverseEvenOdd,
-}
-
-impl From<ShadePathFillType> for PathFillType {
-    fn from(t: ShadePathFillType) -> Self {
-        match t {
-            SHADE_PATH_FILL_TYPE_WINDING => PathFillType::Winding,
-            SHADE_PATH_FILL_TYPE_EVEN_ODD => PathFillType::EvenOdd,
-            SHADE_PATH_FILL_TYPE_INVERSE_WINDING => PathFillType::InverseWinding,
-            SHADE_PATH_FILL_TYPE_INVERSE_EVEN_ODD => PathFillType::InverseEvenOdd,
-            _ => {
-                unreachable!();
-            }
-        }
-    }
-}
-
-impl From<PathFillType> for ShadePathFillType {
-    fn from(t: PathFillType) -> Self {
-        match t {
-            PathFillType::Winding => SHADE_PATH_FILL_TYPE_WINDING,
-            PathFillType::EvenOdd => SHADE_PATH_FILL_TYPE_EVEN_ODD,
-            PathFillType::InverseWinding => SHADE_PATH_FILL_TYPE_INVERSE_WINDING,
-            PathFillType::InverseEvenOdd => SHADE_PATH_FILL_TYPE_INVERSE_EVEN_ODD,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Path(pub(crate) *mut ShadePath);
 
 impl Path {
     #[inline]
-    pub fn new() -> Option<Self> {
-        let path = unsafe { shade_path_create() };
-        if path.is_null() {
-            None
-        } else {
-            Some(Self(path))
-        }
+    pub fn new() -> cxx::UniquePtr<Self> {
+        new_path()
     }
 
-    #[inline]
-    pub fn fill_type(&self) -> PathFillType {
-        unsafe { shade_path_get_fill_type(self.0) }.into()
-    }
-
-    #[inline]
-    pub fn set_fill_type(&mut self, fill_type: PathFillType) {
-        unsafe {
-            shade_path_set_fill_type(self.0, fill_type.into());
-        }
-    }
-
-    #[inline]
-    pub fn move_to(&mut self, x: f32, y: f32) {
-        unsafe {
-            shade_path_move_to(self.0, x, y);
-        }
-    }
-
-    #[inline]
-    pub fn line_to(&mut self, x: f32, y: f32) {
-        unsafe {
-            shade_path_line_to(self.0, x, y);
-        }
-    }
-
-    #[inline]
-    pub fn quad_to(&mut self, x1: f32, y1: f32, x2: f32, y2: f32) {
-        unsafe {
-            shade_path_quad_to(self.0, x1, y1, x2, y2);
-        }
-    }
-
-    #[inline]
-    pub fn conic_to(&mut self, x1: f32, y1: f32, x2: f32, y2: f32, weight: f32) {
-        unsafe {
-            shade_path_conic_to(self.0, x1, y1, x2, y2, weight);
-        }
-    }
-
-    #[inline]
-    pub fn cubic_to(&mut self, x1: f32, y1: f32, x2: f32, y2: f32, x3: f32, y3: f32) {
-        unsafe {
-            shade_path_cubic_to(self.0, x1, y1, x2, y2, x3, y3);
-        }
-    }
-
-    #[inline]
-    pub fn close(&mut self) {
-        unsafe {
-            shade_path_close(self.0);
-        }
-    }
-
-    #[inline]
-    pub fn reset(&mut self) {
-        unsafe {
-            shade_path_reset(self.0);
-        }
-    }
-
-    #[inline]
-    pub fn rewind(&mut self) {
-        unsafe {
-            shade_path_rewind(self.0);
-        }
-    }
-
-    #[inline]
-    pub fn count_points(&self) -> usize {
-        unsafe { shade_path_count_points(self.0) }
-    }
-
-    #[inline]
-    pub fn count_verbs(&self) -> usize {
-        unsafe { shade_path_count_verbs(self.0) }
-    }
-
-    #[inline]
-    pub fn bounds(&self) -> Rect {
-        let mut left = 0f32;
-        let mut top = 0f32;
-        let mut right = 0f32;
-        let mut bottom = 0f32;
-        unsafe {
-            shade_path_get_bounds(
-                self.0,
-                &mut left as *mut _,
-                &mut top as *mut _,
-                &mut right as *mut _,
-                &mut bottom as *mut _,
-            );
-        }
-        Rect::new(left, top, right, bottom)
-    }
-
-    #[inline]
-    pub fn compute_tight_bounds(&self) -> Rect {
-        let mut left = 0f32;
-        let mut top = 0f32;
-        let mut right = 0f32;
-        let mut bottom = 0f32;
-        unsafe {
-            shade_path_compute_tight_bounds(
-                self.0,
-                &mut left as *mut _,
-                &mut top as *mut _,
-                &mut right as *mut _,
-                &mut bottom as *mut _,
-            );
-        }
-        Rect::new(left, top, right, bottom)
-    }
-}
-
-impl Drop for Path {
-    fn drop(&mut self) {
-        unsafe {
-            shade_path_destroy(self.0);
-        }
+    pub fn dump(&self) {
+        dump_path(self);
     }
 }

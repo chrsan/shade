@@ -5,9 +5,14 @@ authors = ["Christer Sandberg <chrsan@gmail.com>"]
 edition = "2018"
 license = "MIT"
 
+[dependencies]
+# cxx = "1.0"
+cxx = { version = "1.0", path = "./cxx" }
+
+[build-dependencies]
+# cxx-build = "1.0"
+cxx-build = { version = "1.0", path = "./cxx/gen/build" }
+
 [dev-dependencies]
 png = "0.16"
 structopt = "0.3"
-
-[build-dependencies]
-cc = "1.0"

@@ -1,3 +1,4 @@
+/*
 pub mod core;
 mod core_bindings;
 
@@ -6,3 +7,6 @@ mod skottie_bindings;
 
 pub mod svg;
 mod svg_bindings;
+*/
+
+pub mod core;
