@@ -3,7 +3,40 @@ mod ffi {
     // See https://github.com/dtolnay/cxx/issues/379 for using cxx_name on enum variants.
 
     #[repr(i32)]
-    enum MatrixScaleToFit {
+    enum SkAlphaType {
+        kUnknown_SkAlphaType,
+        kOpaque_SkAlphaType,
+        kPremul_SkAlphaType,
+        kUnpremul_SkAlphaType,
+    }
+
+    #[repr(i32)]
+    enum SkColorType {
+        kUnknown_SkColorType,
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kRGB_888x_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGBA_1010102_SkColorType,
+        kBGRA_1010102_SkColorType,
+        kRGB_101010x_SkColorType,
+        kBGR_101010x_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16Norm_SkColorType,
+        kRGBA_F16_SkColorType,
+        kRGBA_F32_SkColorType,
+        kR8G8_unorm_SkColorType,
+        kA16_float_SkColorType,
+        kR16G16_float_SkColorType,
+        kA16_unorm_SkColorType,
+        kR16G16_unorm_SkColorType,
+        kR16G16B16A16_unorm_SkColorType,
+    }
+
+    #[repr(i32)]
+    enum ScaleToFit {
         kFill_ScaleToFit,
         kStart_ScaleToFit,
         kCenter_ScaleToFit,
@@ -11,7 +44,7 @@ mod ffi {
     }
 
     #[repr(i32)]
-    enum BlendMode {
+    enum SkBlendMode {
         kClear = 0,
         kSrc = 1,
         kDst = 2,
@@ -84,232 +117,241 @@ mod ffi {
     unsafe extern "C++" {
         include!("shade/cc/core.h");
 
+        type SkAlphaType;
+        type SkColorType;
+
+        fn n32_color_type() -> SkColorType;
+
         fn n32_color_type_is_bgra() -> bool;
 
-        type Point = super::Point;
-        type Rect = super::Rect;
+        #[cxx_name = "SkColorTypeBytesPerPixel"]
+        fn color_type_bytes_per_pixel(ct: SkColorType) -> i32;
 
-        type Matrix = super::Matrix;
-        type MatrixScaleToFit;
+        type SkPoint = super::SkPoint;
+        type SkRect = super::SkRect;
 
-        fn new_identity_matrix() -> Matrix;
+        type SkMatrix = super::SkMatrix;
+        type ScaleToFit;
+
+        fn new_identity_matrix() -> SkMatrix;
 
         #[cxx_name = "getScaleX"]
-        fn get_scale_x(self: &Matrix) -> f32;
+        fn get_scale_x(self: &SkMatrix) -> f32;
 
         #[cxx_name = "getScaleY"]
-        fn get_scale_y(self: &Matrix) -> f32;
+        fn get_scale_y(self: &SkMatrix) -> f32;
 
         #[cxx_name = "getSkewX"]
-        fn get_skew_x(self: &Matrix) -> f32;
+        fn get_skew_x(self: &SkMatrix) -> f32;
 
         #[cxx_name = "getSkewY"]
-        fn get_skew_y(self: &Matrix) -> f32;
+        fn get_skew_y(self: &SkMatrix) -> f32;
 
         #[cxx_name = "getTranslateX"]
-        fn get_translate_x(self: &Matrix) -> f32;
+        fn get_translate_x(self: &SkMatrix) -> f32;
 
         #[cxx_name = "getTranslateY"]
-        fn get_translate_y(self: &Matrix) -> f32;
+        fn get_translate_y(self: &SkMatrix) -> f32;
 
         #[cxx_name = "setTranslate"]
-        fn set_translate(self: &mut Matrix, dx: f32, dy: f32) -> &mut Matrix;
+        fn set_translate(self: &mut SkMatrix, dx: f32, dy: f32) -> &mut SkMatrix;
 
         #[cxx_name = "setScale"]
-        fn set_scale(self: &mut Matrix, sx: f32, sy: f32) -> &mut Matrix;
+        fn set_scale(self: &mut SkMatrix, sx: f32, sy: f32) -> &mut SkMatrix;
 
         #[cxx_name = "setRotate"]
-        fn set_rotate(self: &mut Matrix, degrees: f32) -> &mut Matrix;
+        fn set_rotate(self: &mut SkMatrix, degrees: f32) -> &mut SkMatrix;
 
         #[cxx_name = "setSkew"]
-        fn set_skew(self: &mut Matrix, sx: f32, sy: f32) -> &mut Matrix;
+        fn set_skew(self: &mut SkMatrix, sx: f32, sy: f32) -> &mut SkMatrix;
 
         #[cxx_name = "setSinCos"]
-        fn set_sin_cos(self: &mut Matrix, sin: f32, cos: f32) -> &mut Matrix;
+        fn set_sin_cos(self: &mut SkMatrix, sin: f32, cos: f32) -> &mut SkMatrix;
 
         #[cxx_name = "setRectToRect"]
         fn set_rect_to_rect(
-            self: &mut Matrix,
-            src: &Rect,
-            dst: &Rect,
-            stf: MatrixScaleToFit,
+            self: &mut SkMatrix,
+            src: &SkRect,
+            dst: &SkRect,
+            stf: ScaleToFit,
         ) -> bool;
 
-        fn invert_matrix(m: &Matrix, ok: &mut bool) -> Matrix;
+        fn invert_matrix(m: &SkMatrix, ok: &mut bool) -> SkMatrix;
 
-        type Canvas;
+        type SkCanvas;
 
-        fn new_rgba_canvas(
+        fn new_canvas(
             width: u32,
             height: u32,
+            color_type: SkColorType,
+            alpha_type: SkAlphaType,
             pixels: &mut Vec<u8>,
             row_bytes: usize,
-            premultiplied: bool,
-        ) -> UniquePtr<Canvas>;
+        ) -> UniquePtr<SkCanvas>;
 
-        fn clear(self: Pin<&mut Canvas>, color: u32);
+        fn clear(self: Pin<&mut SkCanvas>, color: u32);
 
-        fn flush(self: Pin<&mut Canvas>);
+        fn flush(self: Pin<&mut SkCanvas>);
 
-        fn save(self: Pin<&mut Canvas>) -> i32;
+        fn save(self: Pin<&mut SkCanvas>) -> i32;
 
-        fn restore(self: Pin<&mut Canvas>);
+        fn restore(self: Pin<&mut SkCanvas>);
 
-        fn scale(self: Pin<&mut Canvas>, sx: f32, sy: f32);
+        fn scale(self: Pin<&mut SkCanvas>, sx: f32, sy: f32);
 
-        fn translate(self: Pin<&mut Canvas>, dx: f32, dy: f32);
+        fn translate(self: Pin<&mut SkCanvas>, dx: f32, dy: f32);
 
-        fn rotate(self: Pin<&mut Canvas>, degrees: f32);
+        fn rotate(self: Pin<&mut SkCanvas>, degrees: f32);
 
-        fn skew(self: Pin<&mut Canvas>, sx: f32, sy: f32);
+        fn skew(self: Pin<&mut SkCanvas>, sx: f32, sy: f32);
 
-        fn concat(self: Pin<&mut Canvas>, matrix: &Matrix);
+        fn concat(self: Pin<&mut SkCanvas>, matrix: &SkMatrix);
 
         #[cxx_name = "resetMatrix"]
-        fn reset_matrix(self: Pin<&mut Canvas>);
+        fn reset_matrix(self: Pin<&mut SkCanvas>);
 
         #[cxx_name = "drawRect"]
-        fn draw_rect(self: Pin<&mut Canvas>, rect: &Rect, paint: &Paint);
+        fn draw_rect(self: Pin<&mut SkCanvas>, rect: &SkRect, paint: &SkPaint);
 
         #[cxx_name = "drawPath"]
-        fn draw_path(self: Pin<&mut Canvas>, path: &Path, paint: &Paint);
+        fn draw_path(self: Pin<&mut SkCanvas>, path: &SkPath, paint: &SkPaint);
 
-        type BlendMode;
+        type SkBlendMode;
 
-        type Paint;
+        type SkPaint;
         type PaintStyle;
         type PaintStrokeCap;
         type PaintStrokeJoin;
 
-        fn new_paint() -> UniquePtr<Paint>;
+        fn new_paint() -> UniquePtr<SkPaint>;
 
-        fn reset(self: Pin<&mut Paint>);
+        fn reset(self: Pin<&mut SkPaint>);
 
         #[cxx_name = "isAntiAlias"]
-        fn is_anti_alias(self: &Paint) -> bool;
+        fn is_anti_alias(self: &SkPaint) -> bool;
 
         #[cxx_name = "setAntiAlias"]
-        fn set_anti_alias(self: Pin<&mut Paint>, aa: bool);
+        fn set_anti_alias(self: Pin<&mut SkPaint>, aa: bool);
 
         #[cxx_name = "getStyle"]
-        fn get_style(self: &Paint) -> PaintStyle;
+        fn get_style(self: &SkPaint) -> PaintStyle;
 
         #[cxx_name = "setStyle"]
-        fn set_style(self: Pin<&mut Paint>, style: PaintStyle);
+        fn set_style(self: Pin<&mut SkPaint>, style: PaintStyle);
 
         #[cxx_name = "setStroke"]
-        fn set_stroke(self: Pin<&mut Paint>, b: bool);
+        fn set_stroke(self: Pin<&mut SkPaint>, b: bool);
 
         #[cxx_name = "getColor"]
-        fn get_color(self: &Paint) -> u32;
+        fn get_color(self: &SkPaint) -> u32;
 
         #[cxx_name = "setColor"]
-        fn set_color(self: Pin<&mut Paint>, color: u32);
+        fn set_color(self: Pin<&mut SkPaint>, color: u32);
 
         #[cxx_name = "getAlpha"]
-        fn get_alpha(self: &Paint) -> u8;
+        fn get_alpha(self: &SkPaint) -> u8;
 
         #[cxx_name = "setAlpha"]
-        fn set_alpha(self: Pin<&mut Paint>, alpha: u32);
+        fn set_alpha(self: Pin<&mut SkPaint>, alpha: u32);
 
         #[cxx_name = "setARGB"]
-        fn set_argb(self: Pin<&mut Paint>, a: u32, r: u32, g: u32, b: u32);
+        fn set_argb(self: Pin<&mut SkPaint>, a: u32, r: u32, g: u32, b: u32);
 
         #[cxx_name = "getStrokeWidth"]
-        fn get_stroke_width(self: &Paint) -> f32;
+        fn get_stroke_width(self: &SkPaint) -> f32;
 
         #[cxx_name = "setStrokeWidth"]
-        fn set_stroke_width(self: Pin<&mut Paint>, width: f32);
+        fn set_stroke_width(self: Pin<&mut SkPaint>, width: f32);
 
         #[cxx_name = "getStrokeMiter"]
-        fn get_stroke_miter(self: &Paint) -> f32;
+        fn get_stroke_miter(self: &SkPaint) -> f32;
 
         #[cxx_name = "setStrokeMiter"]
-        fn set_stroke_miter(self: Pin<&mut Paint>, miter: f32);
+        fn set_stroke_miter(self: Pin<&mut SkPaint>, miter: f32);
 
         #[cxx_name = "getStrokeCap"]
-        fn get_stroke_cap(self: &Paint) -> PaintStrokeCap;
+        fn get_stroke_cap(self: &SkPaint) -> PaintStrokeCap;
 
         #[cxx_name = "setStrokeCap"]
-        fn set_stroke_cap(self: Pin<&mut Paint>, cap: PaintStrokeCap);
+        fn set_stroke_cap(self: Pin<&mut SkPaint>, cap: PaintStrokeCap);
 
         #[cxx_name = "getStrokeJoin"]
-        fn get_stroke_join(self: &Paint) -> PaintStrokeJoin;
+        fn get_stroke_join(self: &SkPaint) -> PaintStrokeJoin;
 
         #[cxx_name = "setStrokeJoin"]
-        fn set_stroke_join(self: Pin<&mut Paint>, join: PaintStrokeJoin);
+        fn set_stroke_join(self: Pin<&mut SkPaint>, join: PaintStrokeJoin);
 
         #[cxx_name = "getBlendMode"]
-        fn get_blend_mode(self: &Paint) -> BlendMode;
+        fn get_blend_mode(self: &SkPaint) -> SkBlendMode;
 
         #[cxx_name = "isSrcOver"]
-        fn is_src_over(self: &Paint) -> bool;
+        fn is_src_over(self: &SkPaint) -> bool;
 
         #[cxx_name = "setBlendMode"]
-        fn set_blend_mode(self: Pin<&mut Paint>, mode: BlendMode);
+        fn set_blend_mode(self: Pin<&mut SkPaint>, mode: SkBlendMode);
 
-        type Path;
+        type SkPath;
         type PathFillType;
         type PathDirection;
 
-        fn new_path() -> UniquePtr<Path>;
+        fn new_path() -> UniquePtr<SkPath>;
 
         #[cxx_name = "getFillType"]
-        fn get_fill_type(self: &Path) -> PathFillType;
+        fn get_fill_type(self: &SkPath) -> PathFillType;
 
         #[cxx_name = "setFillType"]
-        fn set_fill_type(self: Pin<&mut Path>, ft: PathFillType);
+        fn set_fill_type(self: Pin<&mut SkPath>, ft: PathFillType);
 
-        fn reset(self: Pin<&mut Path>) -> Pin<&mut Path>;
+        fn reset(self: Pin<&mut SkPath>) -> Pin<&mut SkPath>;
 
-        fn rewind(self: Pin<&mut Path>) -> Pin<&mut Path>;
+        fn rewind(self: Pin<&mut SkPath>) -> Pin<&mut SkPath>;
 
         #[cxx_name = "isEmpty"]
-        fn is_empty(self: &Path) -> bool;
+        fn is_empty(self: &SkPath) -> bool;
 
         #[cxx_name = "moveTo"]
-        fn move_to(self: Pin<&mut Path>, x: f32, y: f32) -> Pin<&mut Path>;
+        fn move_to(self: Pin<&mut SkPath>, x: f32, y: f32) -> Pin<&mut SkPath>;
 
         #[cxx_name = "lineTo"]
-        fn line_to(self: Pin<&mut Path>, x: f32, y: f32) -> Pin<&mut Path>;
+        fn line_to(self: Pin<&mut SkPath>, x: f32, y: f32) -> Pin<&mut SkPath>;
 
         #[cxx_name = "quadTo"]
-        fn quad_to(self: Pin<&mut Path>, x1: f32, y1: f32, x2: f32, y2: f32) -> Pin<&mut Path>;
+        fn quad_to(self: Pin<&mut SkPath>, x1: f32, y1: f32, x2: f32, y2: f32) -> Pin<&mut SkPath>;
 
         #[cxx_name = "conicTo"]
         fn conic_to(
-            self: Pin<&mut Path>,
+            self: Pin<&mut SkPath>,
             x1: f32,
             y1: f32,
             x2: f32,
             y2: f32,
             weight: f32,
-        ) -> Pin<&mut Path>;
+        ) -> Pin<&mut SkPath>;
 
         #[cxx_name = "cubicTo"]
         fn cubic_to(
-            self: Pin<&mut Path>,
+            self: Pin<&mut SkPath>,
             x1: f32,
             y1: f32,
             x2: f32,
             y2: f32,
             x3: f32,
             y3: f32,
-        ) -> Pin<&mut Path>;
+        ) -> Pin<&mut SkPath>;
 
-        fn close(self: Pin<&mut Path>) -> Pin<&mut Path>;
+        fn close(self: Pin<&mut SkPath>) -> Pin<&mut SkPath>;
 
         #[cxx_name = "addRect"]
         fn add_rect<'a, 'b>(
-            self: Pin<&'a mut Path>,
-            rect: &'b Rect,
+            self: Pin<&'a mut SkPath>,
+            rect: &'b SkRect,
             dir: PathDirection,
-        ) -> Pin<&'a mut Path>;
+        ) -> Pin<&'a mut SkPath>;
 
         #[cxx_name = "computeTightBounds"]
-        fn compute_tight_bounds(self: &Path) -> Rect;
+        fn compute_tight_bounds(self: &SkPath) -> SkRect;
 
-        fn dump_path(p: &Path);
+        fn dump_path(p: &SkPath);
     }
 }
 
@@ -354,33 +396,33 @@ impl From<u32> for Color {
 
 #[repr(C)]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
-pub struct Point {
+pub struct SkPoint {
     pub x: f32,
     pub y: f32,
 }
 
-impl Point {
+impl SkPoint {
     #[inline]
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
 }
 
-unsafe impl cxx::ExternType for Point {
-    type Id = cxx::type_id!("Point");
+unsafe impl cxx::ExternType for SkPoint {
+    type Id = cxx::type_id!("SkPoint");
     type Kind = cxx::kind::Trivial;
 }
 
 #[repr(C)]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
-pub struct Rect {
+pub struct SkRect {
     pub left: f32,
     pub top: f32,
     pub right: f32,
     pub bottom: f32,
 }
 
-impl Rect {
+impl SkRect {
     #[inline]
     pub fn new(left: f32, top: f32, right: f32, bottom: f32) -> Self {
         Self {
@@ -417,19 +459,19 @@ impl Rect {
     }
 }
 
-unsafe impl cxx::ExternType for Rect {
-    type Id = cxx::type_id!("Rect");
+unsafe impl cxx::ExternType for SkRect {
+    type Id = cxx::type_id!("SkRect");
     type Kind = cxx::kind::Trivial;
 }
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Matrix {
+pub struct SkMatrix {
     pub mat: [f32; 9],
     type_mask: i32,
 }
 
-impl Matrix {
+impl SkMatrix {
     pub fn invert(&self) -> Option<Self> {
         let mut ok = false;
         let inv = invert_matrix(self, &mut ok);
@@ -441,47 +483,49 @@ impl Matrix {
     }
 }
 
-impl Default for Matrix {
+impl Default for SkMatrix {
     fn default() -> Self {
         new_identity_matrix()
     }
 }
 
-unsafe impl cxx::ExternType for Matrix {
-    type Id = cxx::type_id!("Matrix");
+unsafe impl cxx::ExternType for SkMatrix {
+    type Id = cxx::type_id!("SkMatrix");
     type Kind = cxx::kind::Trivial;
 }
 
-impl Canvas {
-    #[inline]
-    pub fn new_rgba(
-        width: u32,
-        height: u32,
-        pixels: &mut Vec<u8>,
-        row_bytes: usize,
-    ) -> cxx::UniquePtr<Self> {
-        new_rgba_canvas(width, height, pixels, row_bytes, false)
+impl SkColorType {
+    pub fn n32() -> Self {
+        n32_color_type()
     }
 
-    #[inline]
-    pub fn new_rgba_premultiplied(
-        width: u32,
-        height: u32,
-        pixels: &mut Vec<u8>,
-        row_bytes: usize,
-    ) -> cxx::UniquePtr<Self> {
-        new_rgba_canvas(width, height, pixels, row_bytes, true)
+    pub fn bytes_per_pixel(self) -> i32 {
+        color_type_bytes_per_pixel(self)
     }
 }
 
-impl Paint {
+impl SkCanvas {
+    #[inline]
+    pub fn new(
+        width: u32,
+        height: u32,
+        color_type: SkColorType,
+        alpha_type: SkAlphaType,
+        pixels: &mut Vec<u8>,
+        row_bytes: usize,
+    ) -> cxx::UniquePtr<Self> {
+        new_canvas(width, height, color_type, alpha_type, pixels, row_bytes)
+    }
+}
+
+impl SkPaint {
     #[inline]
     pub fn new() -> cxx::UniquePtr<Self> {
         new_paint()
     }
 }
 
-impl Path {
+impl SkPath {
     #[inline]
     pub fn new() -> cxx::UniquePtr<Self> {
         new_path()

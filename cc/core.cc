@@ -4,38 +4,36 @@
 #include "include/core/SkMatrix.h"
 #include "shade/src/core.rs.h"
 
-Matrix new_identity_matrix() {
+SkMatrix new_identity_matrix() {
   return SkMatrix();
 }
 
-Matrix invert_matrix(const Matrix& m, bool& ok) {
+SkMatrix invert_matrix(const SkMatrix& m, bool& ok) {
   SkMatrix inv;
   ok = m.invert(&inv);
   return inv;
 }
 
-std::unique_ptr<Canvas> new_rgba_canvas(std::uint32_t width,
-                                        std::uint32_t height,
-                                        rust::Vec<std::uint8_t>& pixels,
-                                        std::size_t row_bytes,
-                                        bool premultiplied) {
+std::unique_ptr<SkCanvas> new_canvas(std::uint32_t width,
+                                     std::uint32_t height,
+                                     SkColorType color_type,
+                                     SkAlphaType alpha_type,
+                                     rust::Vec<std::uint8_t>& pixels,
+                                     std::size_t row_bytes) {
   SkGraphics::Init();
-  SkAlphaType alpha_type =
-      premultiplied ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
-  SkImageInfo info =
-      SkImageInfo::Make(width, height, kN32_SkColorType, alpha_type);
+  SkImageInfo info = SkImageInfo::Make(width, height, color_type, alpha_type);
   return SkCanvas::MakeRasterDirect(
       info, pixels.data(), row_bytes != 0 ? row_bytes : info.minRowBytes());
 }
 
-std::unique_ptr<Paint> new_paint() {
-  return std::make_unique<Paint>();
+std::unique_ptr<SkPaint> new_paint() {
+  return std::make_unique<SkPaint>();
 }
 
-std::unique_ptr<Path> new_path() {
-  return std::make_unique<Path>();
+std::unique_ptr<SkPath> new_path() {
+  return std::make_unique<SkPath>();
 }
 
-void dump_path(const Path& p) {
+void dump_path(const SkPath& p) {
   p.dump();
 }

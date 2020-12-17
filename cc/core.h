@@ -12,42 +12,36 @@
 #include "include/core/SkRect.h"
 #include "rust/cxx.h"
 
-using Point = SkPoint;
+using ScaleToFit = SkMatrix::ScaleToFit;
 
-using Rect = SkRect;
+SkMatrix new_identity_matrix();
 
-using Matrix = SkMatrix;
-using MatrixScaleToFit = SkMatrix::ScaleToFit;
+SkMatrix invert_matrix(const SkMatrix& m, bool& ok);
 
-Matrix new_identity_matrix();
-
-Matrix invert_matrix(const Matrix& m, bool& ok);
+constexpr SkColorType n32_color_type() {
+  return kN32_SkColorType;
+}
 
 constexpr bool n32_color_type_is_bgra() {
   return kN32_SkColorType == kBGRA_8888_SkColorType;
 }
 
-using Canvas = SkCanvas;
+std::unique_ptr<SkCanvas> new_canvas(std::uint32_t width,
+                                     std::uint32_t height,
+                                     SkColorType color_type,
+                                     SkAlphaType alpha_type,
+                                     rust::Vec<std::uint8_t>& pixels,
+                                     std::size_t row_bytes);
 
-std::unique_ptr<Canvas> new_rgba_canvas(std::uint32_t width,
-                                        std::uint32_t height,
-                                        rust::Vec<std::uint8_t>& pixels,
-                                        std::size_t row_bytes,
-                                        bool premultiplied);
-
-using BlendMode = SkBlendMode;
-
-using Paint = SkPaint;
 using PaintStyle = SkPaint::Style;
 using PaintStrokeCap = SkPaint::Cap;
 using PaintStrokeJoin = SkPaint::Join;
 
-std::unique_ptr<Paint> new_paint();
+std::unique_ptr<SkPaint> new_paint();
 
-using Path = SkPath;
 using PathFillType = SkPathFillType;
 using PathDirection = SkPathDirection;
 
-std::unique_ptr<Path> new_path();
+std::unique_ptr<SkPath> new_path();
 
-void dump_path(const Path& p);
+void dump_path(const SkPath& p);

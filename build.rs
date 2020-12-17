@@ -6,11 +6,13 @@ use std::path::Path;
 const MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 fn main() {
-    let mut build = cxx_build::bridge("src/core.rs");
+    let mut build = cxx_build::bridges(&["src/core.rs", "src/skottie.rs", "src/svg.rs"]);
     build
         .define("SK_RELEASE", None)
         .include("skia")
         .file("cc/core.cc")
+        .file("cc/skottie.cc")
+        .file("cc/svg.cc")
         .flag("-std=c++17")
         .flag("-fno-exceptions")
         .flag("-fno-rtti");
@@ -36,6 +38,12 @@ fn main() {
     println!("cargo:rerun-if-changed=src/core.rs");
     println!("cargo:rerun-if-changed=cc/core.h");
     println!("cargo:rerun-if-changed=cc/core.cc");
+    println!("cargo:rerun-if-changed=src/skottie.rs");
+    println!("cargo:rerun-if-changed=cc/skottie.h");
+    println!("cargo:rerun-if-changed=cc/skottie.cc");
+    println!("cargo:rerun-if-changed=src/svg.rs");
+    println!("cargo:rerun-if-changed=cc/svg.h");
+    println!("cargo:rerun-if-changed=cc/svg.cc");
 }
 
 fn write_compile_flags(args: &[std::ffi::OsString]) -> Result<()> {
