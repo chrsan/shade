@@ -5,7 +5,7 @@ set -e
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 OS=`uname -s | tr '[:upper:]' '[:lower:]'`
 ARCH=`uname -m`
-SKIA_COMMIT="b05f80697afd6e8cb2389b77c4e20d88caa30393"
+SKIA_COMMIT="21ebdec5170d890bb7fc7ec88d3dc0ee9995e600"
 
 pushd $BASE_DIR/.. > /dev/null
 
@@ -16,7 +16,7 @@ if [[ ! -d skia ]]; then
     git clone --quiet --no-checkout https://github.com/google/skia.git
     pushd skia > /dev/null
     git checkout --quiet "$SKIA_COMMIT"
-    popd > / dev/null
+    popd > /dev/null
 fi
 
 pushd skia > /dev/null
@@ -47,7 +47,6 @@ if [[ "$1" == "sync" || "$SKIA_CLONED" -eq 1 ]]; then
     GIT_SYNC_DEPS_PATH="DEPS.shade" tools/git-sync-deps
 fi
 
-# Let's piggy back on the Skia build for our C++ sources.
 git reset --hard > /dev/null
 
 echo 'creating gn shade group'
