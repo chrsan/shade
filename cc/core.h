@@ -12,7 +12,7 @@
 #include "include/core/SkRect.h"
 #include "rust/cxx.h"
 
-using ScaleToFit = SkMatrix::ScaleToFit;
+using MatrixScaleToFit = SkMatrix::ScaleToFit;
 
 SkMatrix new_identity_matrix();
 

@@ -60,7 +60,7 @@ fn main() {
         opt.width,
         opt.height,
         ct,
-        shade::core::SkAlphaType::kPremul_SkAlphaType,
+        shade::core::SkAlphaType::Premul,
         &mut pixels,
         0,
     );
@@ -72,11 +72,7 @@ fn main() {
     let src_rect = shade::core::SkRect::from_wh(size.width, size.height);
     let dst_rect = shade::core::SkRect::from_wh(opt.width as _, opt.height as _);
     let mut scale_matrix = shade::core::SkMatrix::default();
-    scale_matrix.set_rect_to_rect(
-        &src_rect,
-        &dst_rect,
-        shade::core::ScaleToFit::kCenter_ScaleToFit,
-    );
+    scale_matrix.set_rect_to_rect(&src_rect, &dst_rect, shade::core::MatrixScaleToFit::Center);
     canvas.pin_mut().concat(&scale_matrix);
 
     let native_fps = animation.fps();

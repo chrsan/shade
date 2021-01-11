@@ -52,7 +52,7 @@ fn main() {
         opt.width,
         opt.height,
         ct,
-        shade::core::SkAlphaType::kPremul_SkAlphaType,
+        shade::core::SkAlphaType::Premul,
         &mut pixels,
         0,
     );

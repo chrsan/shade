@@ -1,117 +1,191 @@
 #[cxx::bridge]
 mod ffi {
-    // See https://github.com/dtolnay/cxx/issues/379 for using cxx_name on enum variants.
-
     #[repr(i32)]
     enum SkAlphaType {
-        kUnknown_SkAlphaType,
-        kOpaque_SkAlphaType,
-        kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType,
+        #[cxx_name = "kUnknown_SkAlphaType"]
+        Unknown,
+        #[cxx_name = "kOpaque_SkAlphaType"]
+        Opaque,
+        #[cxx_name = "kPremul_SkAlphaType"]
+        Premul,
+        #[cxx_name = "kUnpremul_SkAlphaType"]
+        Unpremul,
     }
 
     #[repr(i32)]
     enum SkColorType {
-        kUnknown_SkColorType,
-        kAlpha_8_SkColorType,
-        kRGB_565_SkColorType,
-        kARGB_4444_SkColorType,
-        kRGBA_8888_SkColorType,
-        kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType,
-        kRGBA_1010102_SkColorType,
-        kBGRA_1010102_SkColorType,
-        kRGB_101010x_SkColorType,
-        kBGR_101010x_SkColorType,
-        kGray_8_SkColorType,
-        kRGBA_F16Norm_SkColorType,
-        kRGBA_F16_SkColorType,
-        kRGBA_F32_SkColorType,
-        kR8G8_unorm_SkColorType,
-        kA16_float_SkColorType,
-        kR16G16_float_SkColorType,
-        kA16_unorm_SkColorType,
-        kR16G16_unorm_SkColorType,
-        kR16G16B16A16_unorm_SkColorType,
+        #[cxx_name = "kUnknown_SkColorType"]
+        Unknown,
+        #[cxx_name = "kAlpha_8_SkColorType"]
+        Alpha8,
+        #[cxx_name = "kRGB_565_SkColorType"]
+        Rgb565,
+        #[cxx_name = "kARGB_4444_SkColorType"]
+        Argb4444,
+        #[cxx_name = "kRGBA_8888_SkColorType"]
+        Rgba8888,
+        #[cxx_name = "kRGB_888x_SkColorType"]
+        Rgb888x,
+        #[cxx_name = "kBGRA_8888_SkColorType"]
+        Bgra8888,
+        #[cxx_name = "kRGBA_1010102_SkColorType"]
+        Rgba1010102,
+        #[cxx_name = "kBGRA_1010102_SkColorType"]
+        Bgra1010102,
+        #[cxx_name = "kRGB_101010x_SkColorType"]
+        Rgb101010x,
+        #[cxx_name = "kBGR_101010x_SkColorType"]
+        Bgr101010x,
+        #[cxx_name = "kGray_8_SkColorType"]
+        Gray8,
+        #[cxx_name = "kRGBA_F16Norm_SkColorType"]
+        RgbaF16Norm,
+        #[cxx_name = "kRGBA_F16_SkColorType"]
+        RgbaF16,
+        #[cxx_name = "kRGBA_F32_SkColorType"]
+        RgbaF32,
+        #[cxx_name = "kR8G8_unorm_SkColorType"]
+        R8g8Unorm,
+        #[cxx_name = "kA16_float_SkColorType"]
+        A16Float,
+        #[cxx_name = "kR16G16_float_SkColorType"]
+        R16g16Float,
+        #[cxx_name = "kA16_unorm_SkColorType"]
+        A16Unorm,
+        #[cxx_name = "kR16G16_unorm_SkColorType"]
+        R16g16Unowm,
+        #[cxx_name = "kR16G16B16A16_unorm_SkColorType"]
+        R16g16b16a16Unorm,
     }
 
     #[repr(i32)]
-    enum ScaleToFit {
-        kFill_ScaleToFit,
-        kStart_ScaleToFit,
-        kCenter_ScaleToFit,
-        kEnd_ScaleToFit,
+    enum MatrixScaleToFit {
+        #[cxx_name = "kFill_ScaleToFit"]
+        Fill,
+        #[cxx_name = "kStart_ScaleToFit"]
+        Start,
+        #[cxx_name = "kCenter_ScaleToFit"]
+        Center,
+        #[cxx_name = "kEnd_ScaleToFit"]
+        End,
     }
 
     #[repr(i32)]
     enum SkBlendMode {
-        kClear = 0,
-        kSrc = 1,
-        kDst = 2,
-        kSrcOver = 3,
-        kDstOver = 4,
-        kSrcIn = 5,
-        kDstIn = 6,
-        kSrcOut = 7,
-        kDstOut = 8,
-        kSrcATop = 9,
-        kDstATop = 10,
-        kXor = 11,
-        kPlus = 12,
-        kModulate = 13,
-        kScreen = 14,
-        kLastCoeffMode = 14,
-        kOverlay = 15,
-        kDarken = 16,
-        kLighten = 17,
-        kColorDodge = 18,
-        kColorBurn = 19,
-        kHardLight = 20,
-        kSoftLight = 21,
-        kDifference = 22,
-        kExclusion = 23,
-        kMultiply = 24,
-        kLastSeparableMode = 24,
-        kHue = 25,
-        kSaturation = 26,
-        kColor = 27,
-        kLuminosity = 28,
-        kLastMode = 28,
+        #[cxx_name = "kClear"]
+        Clear = 0,
+        #[cxx_name = "kSrc"]
+        Src = 1,
+        #[cxx_name = "kDst"]
+        Dst = 2,
+        #[cxx_name = "kSrcOver"]
+        SrcOver = 3,
+        #[cxx_name = "kDstOver"]
+        DstOver = 4,
+        #[cxx_name = "kSrcIn"]
+        SrcIn = 5,
+        #[cxx_name = "kDstIn"]
+        DstIn = 6,
+        #[cxx_name = "kSrcOut"]
+        SrcOut = 7,
+        #[cxx_name = "kDstOut"]
+        DstOut = 8,
+        #[cxx_name = "kSrcATop"]
+        SrcATop = 9,
+        #[cxx_name = "kDstATop"]
+        DstATop = 10,
+        #[cxx_name = "kXor"]
+        Xor = 11,
+        #[cxx_name = "kPlus"]
+        Plus = 12,
+        #[cxx_name = "kModulate"]
+        Modulate = 13,
+        #[cxx_name = "kScreen"]
+        Screen = 14,
+        #[cxx_name = "kLastCoeffMode"]
+        LastCoeffMode = 14,
+        #[cxx_name = "kOverlay"]
+        Overlay = 15,
+        #[cxx_name = "kDarken"]
+        Darken = 16,
+        #[cxx_name = "kLighten"]
+        Lighten = 17,
+        #[cxx_name = "kColorDodge"]
+        ColorDodge = 18,
+        #[cxx_name = "kColorBurn"]
+        ColorBurn = 19,
+        #[cxx_name = "kHardLight"]
+        HardLight = 20,
+        #[cxx_name = "kSoftLight"]
+        SoftLight = 21,
+        #[cxx_name = "kDifference"]
+        Difference = 22,
+        #[cxx_name = "kExclusion"]
+        Exclustion = 23,
+        #[cxx_name = "kMultiply"]
+        Multiply = 24,
+        #[cxx_name = "kLastSeparableMode"]
+        LastSeparableMode = 24,
+        #[cxx_name = "kHue"]
+        Hue = 25,
+        #[cxx_name = "kSaturation"]
+        Saturation = 26,
+        #[cxx_name = "kColor"]
+        Color = 27,
+        #[cxx_name = "kLuminosity"]
+        Luminosity = 28,
+        #[cxx_name = "kLastMode"]
+        LastMode = 28,
     }
 
     #[repr(u8)]
     enum PaintStyle {
-        kFill_Style,
-        kStroke_Style,
-        kStrokeAndFill_Style,
+        #[cxx_name = "kFill_Style"]
+        Fill,
+        #[cxx_name = "kStroke_Style"]
+        Stroke,
+        #[cxx_name = "kStrokeAndFill_Style"]
+        StrokeAndFill,
     }
 
     #[repr(i32)]
     enum PaintStrokeCap {
-        kButt_Cap,
-        kRound_Cap,
-        kSquare_Cap,
+        #[cxx_name = "kButt_Cap"]
+        Butt,
+        #[cxx_name = "kRound_Cap"]
+        Round,
+        #[cxx_name = "kSquare_Cap"]
+        Square,
     }
 
     #[repr(u8)]
     enum PaintStrokeJoin {
-        kMiter_Join,
-        kRound_Join,
-        kBevel_Join,
+        #[cxx_name = "kMiter_Join"]
+        Miter,
+        #[cxx_name = "kRound_Join"]
+        Round,
+        #[cxx_name = "kBevel_Join"]
+        Bevel,
     }
 
     #[repr(i32)]
     enum PathFillType {
-        kWinding,
-        kEvenOdd,
-        kInverseWinding,
-        kInverseEvenOdd,
+        #[cxx_name = "kWinding"]
+        Winding,
+        #[cxx_name = "kEvenOdd"]
+        EvenOdd,
+        #[cxx_name = "kInverseWinding"]
+        InverseWinding,
+        #[cxx_name = "kInverseEvenOdd"]
+        InverseEvenOdd,
     }
 
     #[repr(i32)]
     enum PathDirection {
-        kCW,
-        kCCW,
+        #[cxx_name = "kCW"]
+        Cw,
+        #[cxx_name = "kCCW"]
+        Ccw,
     }
 
     unsafe extern "C++" {
@@ -127,11 +201,10 @@ mod ffi {
         #[cxx_name = "SkColorTypeBytesPerPixel"]
         fn color_type_bytes_per_pixel(ct: SkColorType) -> i32;
 
-        type SkPoint = super::SkPoint;
         type SkRect = super::SkRect;
 
         type SkMatrix = super::SkMatrix;
-        type ScaleToFit;
+        type MatrixScaleToFit;
 
         fn new_identity_matrix() -> SkMatrix;
 
@@ -173,7 +246,7 @@ mod ffi {
             self: &mut SkMatrix,
             src: &SkRect,
             dst: &SkRect,
-            stf: ScaleToFit,
+            stf: MatrixScaleToFit,
         ) -> bool;
 
         fn invert_matrix(m: &SkMatrix, ok: &mut bool) -> SkMatrix;
